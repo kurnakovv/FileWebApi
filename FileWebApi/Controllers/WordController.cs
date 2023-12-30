@@ -7,11 +7,21 @@ using System.IO.Compression;
 
 namespace FileWebApi.Controllers;
 
+/// <summary>
+/// Word (.docx).
+/// </summary>
 [ApiKeyAuthorize]
 [Route("api/word")]
 [ApiController]
 public class WordController : ControllerBase
 {
+    /// <summary>
+    /// Replace text in word files (matchString -> newString).
+    /// </summary>
+    /// <param name="matchString">The string that will be replaced with a new string.</param>
+    /// <param name="newString">A new string that will replace the old string.</param>
+    /// <param name="formFiles">Word files that will be replaced.</param>
+    /// <returns>Zip with new word files.</returns>
     [HttpPut("replacement")]
     public async Task<IActionResult> Replace(
         [Required] string matchString,
