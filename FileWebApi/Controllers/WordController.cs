@@ -1,5 +1,5 @@
-﻿using FileWebApi.Constants;
-using Microsoft.AspNetCore.Cors.Infrastructure;
+﻿using FileWebApi.Attributes;
+using FileWebApi.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Spire.Doc;
 using System.ComponentModel.DataAnnotations;
@@ -7,6 +7,7 @@ using System.IO.Compression;
 
 namespace FileWebApi.Controllers;
 
+[ApiKeyAuthorize]
 [Route("api/word")]
 [ApiController]
 public class WordController : ControllerBase
