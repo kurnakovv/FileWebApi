@@ -74,6 +74,6 @@ public class WordController : ControllerBase
             }
         }
         outZip.Position = 0;
-        return File(outZip, "application/zip", $"wordFiles-{Guid.NewGuid()}.zip");
+        return File(outZip, "application/zip", $"wordFiles.zip");
     }
 }
