@@ -1,5 +1,6 @@
 ﻿using FileWebApi.Attributes;
 using FileWebApi.Constants;
+using FileWebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Spire.Doc;
 using System.ComponentModel.DataAnnotations;
@@ -20,32 +21,32 @@ public class WordController : ControllerBase
     /// </summary>
     /// <param name="matchString">The string that will be replaced with a new string.</param>
     /// <param name="newString">A new string that will replace the old string.</param>
-    /// <param name="formFiles">Word files that will be replaced.</param>
+    /// <param name="model">Word files that will be replaced.</param>
     /// <returns>Zip with new word files.</returns>
     [HttpPut("replacement")]
     public async Task<IActionResult> Replace(
         [Required] string matchString,
         [Required] string newString,
-        [Required, FromForm] IEnumerable<IFormFile> formFiles
+        [FromForm] WordReplacementRequest model
     )
     {
-        if (!formFiles.Any())
+        if (!model.FormFiles.Any())
         {
             return NotFound("Files not found.");
         }
-        IEnumerable<IFormFile> invalidFileFormats = formFiles.Where(f => !f.FileName.EndsWith(".docx"));
+        IEnumerable<IFormFile> invalidFileFormats = model.FormFiles.Where(f => !f.FileName.EndsWith(".docx"));
         if (invalidFileFormats.Any())
         {
             string names = string.Join(", ", invalidFileFormats.Select(x => $"'{x.FileName}'").ToList());
             return Conflict($"Incorrect file format, can only be used Doc files (ended with \".docx\").\nIncorrect files: {names}");
         }
-        IEnumerable<IFormFile> invalidFileSize = formFiles.Where(x => x.Length > WordConstants.MAX_LIMIT);
+        IEnumerable<IFormFile> invalidFileSize = model.FormFiles.Where(x => x.Length > WordConstants.MAX_LIMIT);
         if (invalidFileSize.Any())
         {
             string names = string.Join(", ", invalidFileSize.Select(x => $"'{x.FileName}'").ToList());
             return Conflict($"Incorrect file size (max {WordConstants.MAX_LIMIT} MB).\nIncorrect files: {names}");
         }
-        IEnumerable<string> duplicateFileNames = formFiles
+        IEnumerable<string> duplicateFileNames = model.FormFiles
             .Select(x => x.FileName)
             .GroupBy(x => x)
             .Where(x => x.Count() > 1)
@@ -58,7 +59,7 @@ public class WordController : ControllerBase
         MemoryStream outZip = new();
         using (ZipArchive zip = new(outZip, ZipArchiveMode.Create, true))
         {
-            foreach (IFormFile formFile in formFiles)
+            foreach (IFormFile formFile in model.FormFiles)
             {
                 using Stream stream = formFile.OpenReadStream();
                 Document document = new();
