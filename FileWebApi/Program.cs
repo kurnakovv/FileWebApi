@@ -30,6 +30,21 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddHealthChecks();
 
+builder.Services.AddCors(
+    options =>
+    {
+        options.AddPolicy(
+            "AllowCors",
+            builder =>
+            {
+                builder.AllowAnyOrigin().WithMethods(
+                    HttpMethod.Get.Method,
+                    HttpMethod.Put.Method,
+                    HttpMethod.Post.Method,
+                    HttpMethod.Delete.Method).AllowAnyHeader().WithExposedHeaders("CustomHeader");
+            });
+    });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -46,5 +61,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapHealthChecks("/ping");
+
+app.UseCors("AllowCors");
 
 app.Run();
